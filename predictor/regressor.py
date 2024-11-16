@@ -65,44 +65,42 @@
 
     
   
-import numpy as np 
-import pandas as pd 
-from sklearn.model_selection import train_test_split 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc, f1_score , confusion_matrix
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-import warnings 
-warnings.filterwarnings("ignore") 
-  
-# To compare our model's accuracy with sklearn model 
-# from sklearn.linear_model import LogisticRegression 
+import seaborn as sns
+import warnings
+warnings.filterwarnings("ignore")
 
-# Logistic Regression 
 class LogisticRegression:
-    def __init__(self, learning_rate, iterations):
-        self.learning_rate = learning_rate         
-        self.iterations = iterations 
-  
+    def __init__(self, learning_rate=0.1, iterations=5000, regularization=0.01):
+        self.learning_rate = learning_rate
+        self.iterations = iterations
+        self.regularization = regularization
+
     def fit(self, X, Y):
         self.m, self.n = X.shape
         self.W = np.zeros(self.n)
-        self.b = 0        
-        self.X = X         
-        self.Y = Y 
+        self.b = 0
+        self.X = X
+        self.Y = Y
 
-        for i in range(self.iterations):
+        for _ in range(self.iterations):
             self.update_weights()
         return self
-      
+
     def update_weights(self):
         A = 1 / (1 + np.exp(-(self.X.dot(self.W) + self.b)))
-        tmp = (A - self.Y.T)
-        tmp = np.reshape(tmp, self.m)
-        dW = np.dot(self.X.T, tmp) / self.m
+        tmp = (A - self.Y.T).reshape(self.m)
+        dW = (np.dot(self.X.T, tmp) / self.m) + (self.regularization * self.W)
         db = np.sum(tmp) / self.m
-          
-        self.W = self.W - self.learning_rate * dW
-        self.b = self.b - self.learning_rate * db
-          
+
+        self.W -= self.learning_rate * dW
+        self.b -= self.learning_rate * db
+
     def predict(self, X):
         Z = 1 / (1 + np.exp(-(X.dot(self.W) + self.b)))
         Y_pred = np.where(Z > 0.5, 1, 0)
@@ -112,51 +110,51 @@ def load_data():
     df = pd.read_csv("C:\\Users\\hp\\Desktop\\HDPS\\predictor\\heart.csv")
     X = df.iloc[:, :-1].values
     Y = df.iloc[:, -1].values
-    return X, Y
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc, confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
+    # Scale features
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
+
+    return X, Y
 
 def evaluate_model(y_true, y_pred, y_prob):
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred)
     recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
     fpr, tpr, _ = roc_curve(y_true, y_prob)
     roc_auc = auc(fpr, tpr)
-    
-    # Confusion Matrix
-    cm = confusion_matrix(y_true, y_pred)
-    
+
     print(f"Accuracy: {accuracy:.2f}")
     print(f"Precision: {precision:.2f}")
     print(f"Recall: {recall:.2f}")
+    print(f"F1 Score: {f1:.2f}")
     print(f"AUC: {roc_auc:.2f}")
-    
-    # Plot Confusion Matrix
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'])
-    plt.xlabel('Predicted')
-    plt.ylabel('True')
-    plt.title('Confusion Matrix')
+
+    # Confusion Matrix
+    cm = confusion_matrix(y_true, y_pred)
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title("Confusion Matrix")
     plt.show()
 
-    # Plot ROC Curve
-    plt.figure()
-    plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-    plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+    # ROC Curve
+    plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {roc_auc:.2f})')
+    plt.plot([0, 1], [0, 1], linestyle='--')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.legend(loc="lower right")
+    plt.title('ROC Curve')
+    plt.legend()
     plt.show()
 
-# Main execution
+# Load and preprocess data
 X, Y = load_data()
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-model = LogisticRegression(learning_rate=0.01, iterations=1000)
+# Train and evaluate the model
+model = LogisticRegression(learning_rate=0.1, iterations=5000, regularization=0.01)
 model.fit(X_train, Y_train)
 
 Y_pred, Y_prob = model.predict(X_test)
 evaluate_model(Y_test, Y_pred, Y_prob)
+
+
