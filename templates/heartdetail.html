@@ -1,0 +1,94 @@
+{% extends 'base_layout2.html' %}
+{% block css %}
+<style> 
+    footer {
+        padding-left: 295px;
+    }
+    .con {
+        padding-left: 390px;
+        width: 90%;
+        flex: 1 0 auto;
+    }
+    @media only screen and (max-width : 992px) {
+      .con, footer {
+        padding-left: 0;
+      }
+    }
+    body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="con">
+    <h5> Here is the record of your previous Prediction of Heart Disease. </h5>
+    <br><br>
+    <table class="striped">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Age</th>
+                <th>Sex</th>
+                <th>Chest Pain</th>
+                <th>Resting BP</th>
+                <th>Cholesterol</th>
+                <th>Fasting BS</th>
+                <th>Rest ECG</th>
+                <th>Max Heart Rate</th>
+                <th>Exercise Induced Angina</th>
+                <th>Oldpeak</th>
+                <th>Slope</th>
+                <th>CA</th>
+                <th>Thalassemia</th>
+                <th>Probability</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in record_data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ data.age }}</td>
+                <td>{{ data.sex|yesno:"Male,Female" }}</td>
+                <td>
+                    {% if data.cp == 0 %} Asymptomatic
+                    {% elif data.cp == 1 %} Atypical Angina
+                    {% elif data.cp == 2 %} Non-anginal Pain
+                    {% elif data.cp == 3 %} Typical Angina
+                    {% endif %}
+                </td>
+                <td>{{ data.trestbps }}</td>
+                <td>{{ data.chol }}</td>
+                <td>{{ data.fbs|yesno:"True,False" }}</td>
+                <td>
+                    {% if data.restecg == 0 %} Left Ventricular Hypertrophy
+                    {% elif data.restecg == 1 %} Normal
+                    {% elif data.restecg == 2 %} ST-T Wave Abnormality
+                    {% endif %}
+                </td>
+                <td>{{ data.thalach }}</td>
+                <td>{{ data.exang|yesno:"Yes,No" }}</td>
+                <td>{{ data.oldpeak }}</td>
+                <td>
+                    {% if data.slope == 0 %} Downsloping
+                    {% elif data.slope == 1 %} Flat
+                    {% elif data.slope == 2 %} Upsloping
+                    {% endif %}
+                </td>
+                <td>{{ data.ca }}</td>
+                <td>
+                    {% if data.thal == 1 %} Fixed Defect
+                    {% elif data.thal == 2 %} Normal Blood Flow
+                    {% elif data.thal == 3 %} Reversible Defect
+                    {% endif %}
+                </td>
+                <td>{{ data.probability }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

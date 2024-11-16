@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Signup - HDPS</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="{% static 'css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="{% static 'css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+
+  <style> 
+   body {
+      background-color: #263238;
+      color: #ffffff;
+   }
+   .card {
+      padding: 20px;
+   }
+   .error-message {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+   }
+ </style>
+</head>
+<body>
+  
+<div class="row">
+  <div class="col s12 m6 l4 offset-m3 offset-l4">
+    <div class="card hoverable">
+      <div class="card-content grey lighten-4">
+        
+        <!-- Display messages if any -->
+        {% if messages %}
+          <div class="error-message">
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+        
+        <!-- Signup Form -->
+        <form action="{% url 'signup' %}" method="POST" id="signup-form">
+          {% csrf_token %}
+          <h5 class="center">Signup</h5>
+
+          <div class="input-field">
+            <i class="material-icons prefix">face</i>
+            <input required id="first_name" type="text" name="first_name" class="validate">
+            <label for="first_name">First Name</label>
+          </div>
+
+          <div class="input-field">
+            <i class="material-icons prefix">account_circle</i>
+            <input required id="last_name" type="text" name="last_name" class="validate">
+            <label for="last_name">Last Name</label>
+          </div>
+
+          <div class="input-field">
+            <i class="material-icons prefix">email</i>
+            <input required id="email" type="email" name="email" class="validate">
+            <label for="email">Email</label>
+          </div>
+
+          <div class="input-field">
+            <i class="material-icons prefix">assignment_ind</i>
+            <input required id="username" type="text" name="username" class="validate">
+            <label for="username">Username</label>
+          </div>
+
+          <div class="input-field">
+            <i class="material-icons prefix">vpn_key</i>
+            <input required id="password" type="password" name="password" class="validate">
+            <label for="password">Set Password</label>
+          </div>
+
+          <p>
+            <label>
+              <input type="checkbox" />
+              <span>Remember Me</span>
+            </label>
+          </p>
+
+          <div class="center-align">
+            <button class="blue-grey darken-4 btn waves-effect waves-light" type="submit">Sign Up
+              <i class="material-icons right">send</i>
+            </button>
+          </div>
+
+          <div class="center-align">
+            <p>Already have an account? <a href="{% url 'signin' %}">Sign In</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/materialize.min.js' %}"></script>
+</body>
+</html>
