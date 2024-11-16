@@ -114,6 +114,10 @@ def load_data():
     Y = df.iloc[:, -1].values
     return X, Y
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_curve, auc, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 def evaluate_model(y_true, y_pred, y_prob):
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred)
@@ -121,11 +125,23 @@ def evaluate_model(y_true, y_pred, y_prob):
     fpr, tpr, _ = roc_curve(y_true, y_prob)
     roc_auc = auc(fpr, tpr)
     
+    # Confusion Matrix
+    cm = confusion_matrix(y_true, y_pred)
+    
     print(f"Accuracy: {accuracy:.2f}")
     print(f"Precision: {precision:.2f}")
     print(f"Recall: {recall:.2f}")
     print(f"AUC: {roc_auc:.2f}")
     
+    # Plot Confusion Matrix
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'])
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title('Confusion Matrix')
+    plt.show()
+
+    # Plot ROC Curve
     plt.figure()
     plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
     plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
@@ -144,4 +160,3 @@ model.fit(X_train, Y_train)
 
 Y_pred, Y_prob = model.predict(X_test)
 evaluate_model(Y_test, Y_pred, Y_prob)
-
