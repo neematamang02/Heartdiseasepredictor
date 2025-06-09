@@ -1,4 +1,3 @@
-
 # # Importing libraries 
 # import numpy as np 
 # import pandas as pd 
@@ -73,6 +72,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
+import os
 warnings.filterwarnings("ignore")
 
 class LogisticRegression:
@@ -107,7 +107,10 @@ class LogisticRegression:
         return Y_pred, Z
 
 def load_data():
-    df = pd.read_csv("C:\\Users\\hp\\Desktop\\HDPS\\predictor\\heart.csv")
+    # Use os.path to handle paths correctly
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(current_dir, "heart.csv")
+    df = pd.read_csv(csv_path)
     X = df.iloc[:, :-1].values
     Y = df.iloc[:, -1].values
 
@@ -146,15 +149,21 @@ def evaluate_model(y_true, y_pred, y_prob):
     plt.legend()
     plt.show()
 
-# Load and preprocess data
-X, Y = load_data()
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+def train_and_evaluate():
+    # Load and preprocess data
+    X, Y = load_data()
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-# Train and evaluate the model
-model = LogisticRegression(learning_rate=0.1, iterations=5000, regularization=0.01)
-model.fit(X_train, Y_train)
+    # Train and evaluate the model
+    model = LogisticRegression(learning_rate=0.1, iterations=5000, regularization=0.01)
+    model.fit(X_train, Y_train)
 
-Y_pred, Y_prob = model.predict(X_test)
-evaluate_model(Y_test, Y_pred, Y_prob)
+    Y_pred, Y_prob = model.predict(X_test)
+    evaluate_model(Y_test, Y_pred, Y_prob)
+    return model
+
+# Remove the automatic training code
+if __name__ == '__main__':
+    train_and_evaluate()
 
 
