@@ -158,22 +158,31 @@ def about(request): #Displays about us page.
 
 
 
-def signin(request): # For the user to sign in.
+def signin(request):
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('admin:index')
+        return redirect('index')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
 
-        user = auth.authenticate(username=username,password=password)
-        if user is not None:
-            auth.login(request,user)
-            return redirect('/')
-        else:
-            messages.warning(request,'Invalid Credentials')
-            return redirect('signin')
+        # Clear any existing sessions first
+        request.session.flush()
 
-        
-    else:
-        return render(request,'signin.html')
+        user = auth.authenticate(request, username=username, password=password)
+        if user is not None:
+            if user.is_staff:
+                messages.warning(request, 'Admin users must use the admin login page')
+                return redirect('admin:login')
+            auth.login(request, user)
+            return redirect('index')
+        else:
+            messages.error(request, 'Invalid username or password')
+            return redirect('signin')
+    
+    return render(request, 'signin.html')
 
 
 def signup(request): #For the user to resister or sign up.
@@ -204,9 +213,18 @@ def signup(request): #For the user to resister or sign up.
         return render(request,'signup.html')
 
 
-def signout(request): # In order to logout from the website
+def signout(request):
+    # Store the is_staff status before logout
+    was_staff = request.user.is_staff
+    
+    # Clear all session data
+    request.session.flush()
     auth.logout(request)
-    return redirect('/')
+    
+    # Redirect based on user type
+    if was_staff:
+        return redirect('admin:login')
+    return redirect('index')
 
 
 # End login

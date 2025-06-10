@@ -46,6 +46,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'predictor.middleware.SessionSeparationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -123,4 +124,33 @@ STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
 STATIC_ROOT=os.path.join(BASE_DIR,'assets')
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'predictor.auth_backends.SeparateAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Session settings
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+SESSION_COOKIE_NAME = 'user_sessionid'
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Admin session settings
+ADMIN_SESSION_COOKIE_NAME = 'admin_sessionid'
+ADMIN_SESSION_COOKIE_AGE = 3600  # 1 hour for admin sessions
+
+# Login URLs
+LOGIN_URL = '/signin/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Admin settings
+ADMIN_URL = '/admin/'
+
+# Make sure admin is properly configured
+ADMIN_ENABLED = True
 
